@@ -32,6 +32,7 @@ const CreateAccountPage = require('./components/pages/create-account')
 const NoticeScreen = require('./components/pages/notice')
 
 const Loading = require('./components/loading-screen')
+const LoadingNetwork = require('./components/loading-network-screen').default
 const NetworkDropdown = require('./components/dropdowns/network-dropdown')
 const AccountMenu = require('./components/account-menu')
 
@@ -111,6 +112,9 @@ class App extends Component {
       setMouseUserState,
       sidebar,
       submittedPendingTransactions,
+      setProviderType,
+      lastSelectedProvider,
+      showNetworkDropdown,
     } = this.props
     const isLoadingNetwork = network === 'loading' && currentView.name !== 'config'
     const loadMessage = loadingMessage || isLoadingNetwork ?
@@ -169,9 +173,10 @@ class App extends Component {
         h(AccountMenu),
 
         h('div.main-container-wrapper', [
-          (isLoading || isLoadingNetwork) && h(Loading, {
+          isLoading && h(Loading, {
             loadingMessage: loadMessage,
           }),
+          !isLoading && isLoadingNetwork && h(LoadingNetwork),
 
           // content
           this.renderRoutes(),
@@ -291,6 +296,7 @@ function mapStateToProps (state) {
     alertMessage,
     isLoading,
     loadingMessage,
+    lastSelectedProvider,
   } = appState
 
   const accounts = getMetaMaskAccounts(state)
@@ -350,6 +356,7 @@ function mapStateToProps (state) {
     Qr: state.appState.Qr,
     welcomeScreenSeen: state.metamask.welcomeScreenSeen,
     providerId: getNetworkIdentifier(state),
+    lastSelectedProvider,
 
     // state needed to get account dropdown temporarily rendering from app bar
     identities,
@@ -367,6 +374,9 @@ function mapDispatchToProps (dispatch, ownProps) {
     setCurrentCurrencyToUSD: () => dispatch(actions.setCurrentCurrency('usd')),
     toggleAccountMenu: () => dispatch(actions.toggleAccountMenu()),
     setMouseUserState: (isMouseUser) => dispatch(actions.setMouseUserState(isMouseUser)),
+    setProviderType: (type) => {
+      dispatch(actions.setProviderType(type))
+    },
   }
 }
 
